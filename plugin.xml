@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.2"?>
+<plugin>
+  <extension point="com.dynatrace.diagnostics.pdk.pluginconfig" id="com.dynatrace.diagnostics.plugin.BizTalkPerfMon" name="BizTalk Windows Performance Monitor">
+    <information>
+      <description value="Reads out PerfMon information from BizTalk, all counters are stored in seperate instances that is called the same name as the BizTalk Hosting Process so the normal Windows Counters can't pull the data out.&#xD;&#xA;Eg. default instance is BizTalkServerApplication and is hosted by BTSNTSvc.exe, so {pid} and {monitored_process} doesn't work propperly." />
+      <category value="Remote" />
+      <supportlevel value="certified" />
+      <license value="dynaTraceBSD.txt" />
+    </information>
+    <configuration>
+      <property key="host" label="Host" type="host" description="Name or address of the host where performance counters are retrieved from." default="localhost" />
+      <property key="auth" label="Authentication" type="boolean" description="Username and password for remote access." default="false" />
+      <property key="username" label="Username" type="string" description="Enter the username for remote access." default="">
+        <visibility>
+          <rule key="auth" value="true" />
+        </visibility>
+      </property>
+      <property key="password" label="Password" type="password" description="Enter the password for the username." default="">
+        <visibility>
+          <rule key="auth" value="true" />
+        </visibility>
+      </property>
+      <property key="domain" label="Domain" type="string" description="Enter the domain for remote access." default="">
+        <visibility>
+          <rule key="auth" value="true" />
+        </visibility>
+      </property>
+      <property key="biztalkinstance" label="BizTalk Instance" type="string" description="Name of the BizTalk Instance for example &quot;BizTalkServerApplication&quot;" default="BizTalkServerApplication" />
+    </configuration>
+  </extension>
+  <extension point="com.dynatrace.diagnostics.pdk.monitor" id="com.dynatrace.diagnostics.plugin.BizTalkPerfMon.monitor" name="BizTalk Windows Performance Monitor">
+    <plugin class="com.dynatrace.diagnostics.plugin.WindowsPerformanceMonitor" configid="com.dynatrace.diagnostics.plugin.BizTalkPerfMon" />
+  </extension>
+  <extension point="com.dynatrace.diagnostics.pdk.monitormetricgroup" id="com.dynatrace.diagnostics.plugin.BizTalkPerfMon.metricgroup1" name="BizTalk State Counters">
+    <metricgroup monitorid="com.dynatrace.diagnostics.plugin.BizTalkPerfMon.monitor">
+      <metric name="High database session" description="The number of currently opened database sessions exceeds the BizTalk threshold." unit="number" defaultrate="none" hidedisplayaggregation="sum count">
+        <property key="objectName" value="BizTalk:Message Agent" optional="false" />
+        <property key="counterName" value="High database session" optional="false" />
+      </metric>
+      <metric name="High database size" description="The destination queue depth of all messagebox databases exceeds the BizTalk threshold. If the host publishes to multiple queues, the weighted average across all destination queues is computed (based on recent publish statistics) and compared with the BizTalk threshold." unit="number" defaultrate="none" hidedisplayaggregation="sum count">
+        <property key="objectName" value="BizTalk:Message Agent" optional="false" />
+        <property key="counterName" value="High database size" optional="false" />
+      </metric>
+      <metric name="High in-process message count" description="The number of in-process messages exceeds the BizTalk threshold." unit="number" defaultrate="none" hidedisplayaggregation="sum count">
+        <property key="objectName" value="BizTalk:Message Agent" optional="false" />
+        <property key="counterName" value="High in-process message count" optional="false" />
+      </metric>
+      <metric name="High message delivery rate" description="The message delivery rate is higher than the message processing rate." unit="number" defaultrate="none" hidedisplayaggregation="sum count">
+        <property key="objectName" value="BizTalk:Message Agent" optional="false" />
+        <property key="counterName" value="High message delivery rate" optional="false" />
+      </metric>
+      <metric name="High message publishing rate" description="The message publishing request rate is higher than the message publishing completion rate." unit="number" defaultrate="none" hidedisplayaggregation="sum count">
+        <property key="objectName" value="BizTalk:Message Agent" optional="false" />
+        <property key="counterName" value="High message publishing rate" optional="false" />
+      </metric>
+      <metric name="High process memory" description="The process memory consumption exceeds the BizTalk threshold." unit="number" defaultrate="none" hidedisplayaggregation="sum count">
+        <property key="objectName" value="BizTalk:Message Agent" optional="false" />
+        <property key="counterName" value="High process memory" optional="false" />
+      </metric>
+      <metric name="High system memory" description="The system-wide physical memory consumption exceeds the BizTalk threshold." unit="number" defaultrate="none" hidedisplayaggregation="sum count">
+        <property key="objectName" value="BizTalk:Message Agent" optional="false" />
+        <property key="counterName" value="High system memory" optional="false" />
+      </metric>
+      <metric name="High thread count" description="The thread count exceeds the BizTalk threshold." unit="number" defaultrate="sec" hidedisplayaggregation="sum count">
+        <property key="objectName" value="BizTalk:Message Agent" optional="false" />
+        <property key="counterName" value="High thread count" optional="false" />
+      </metric>
+      <!-- currently there is no way to query a total over all instances
+          <metric name="Packets received Errors" unit="number" >
+            <property key="objectName" value="Network Interface" />
+            <property key="counterName" value="Packets Received Errors" />
+         </metric>
+-->
+    </metricgroup>
+    <information>
+      <description value="Provides metrics to query operating system performance parameters via PerfMon." />
+    </information>
+  </extension>
+  <extension point="com.dynatrace.diagnostics.pdk.monitormetricgroup" id="com.dynatrace.diagnostics.plugin.BizTalkPerfMon.metricgroup2" name="BizTalk Message Delivery Counters">
+    <metricgroup monitorid="com.dynatrace.diagnostics.plugin.BizTalkPerfMon.monitor">
+      <metric defaultrate="purepath" name="Message delivery incoming rate" unit="number" description="The number of messages delivered to the service class per second.">
+        <property key="objectName" value="BizTalk:Message Agent" optional="false" />
+        <property key="counterName" value="Message delivery incoming rate" optional="false" />
+      </metric>
+      <metric defaultrate="purepath" name="Message delivery outgoing rate" unit="number" description="The number of messages processed by the service class per second.">
+        <property key="objectName" value="BizTalk:Message Agent" optional="false" />
+        <property key="counterName" value="Message delivery outgoing rate" optional="false" />
+      </metric>
+      <metric defaultrate="purepath" name="Message delivery delay (ms)" unit="ms" description="The delay injected in each batch for throttling the delivery of messages.">
+        <property key="objectName" value="BizTalk:Message Agent" optional="false" />
+        <property key="counterName" value="Message delivery delay (ms)" optional="false" />
+      </metric>
+      <metric defaultrate="purepath" name="Message delivery throttling state" unit="number" description="A flag indicating whether the system is throttling message delivery (affecting XLANG message processing and outbound transports).&#xD;&#xA;&#xD;&#xA;    * 0: Not throttling&#xD;&#xA;    * 1: Throttling due to imbalanced message delivery rate (input rate exceeds output rate)&#xD;&#xA;    * 3: Throttling due to high in-process message count&#xD;&#xA;    * 4: Throttling due to process memory pressure&#xD;&#xA;    * 5: Throttling due to system memory pressure&#xD;&#xA;    * 9: Throttling due to high thread count&#xD;&#xA;    * 10: Throttling due to user override on delivery&#xD;&#xA;">
+        <property key="objectName" value="BizTalk:Message Agent" optional="false" />
+        <property key="counterName" value="Message delivery throttling state" optional="false" />
+      </metric>
+      <metric defaultrate="purepath" name="Message delivery throttling state duration" unit="s" description="Seconds spent in the current state (throttling or not throttling) of message delivery throttling.">
+        <property key="objectName" value="BizTalk:Message Agent" optional="false" />
+        <property key="counterName" value="Message delivery throttling state duration" optional="false" />
+      </metric>
+      <metric defaultrate="purepath" name="Message delivery throttling user override" unit="number" description="This counter reflects the user override that is monitored by the engine and interpreted as follows:&#xD;&#xA;&#xD;&#xA;    * 0: No override&#xD;&#xA;    * 1: Always throttle message delivery&#xD;&#xA;    * 2: Do not throttle message delivery&#xD;&#xA;">
+        <property key="objectName" value="BizTalk:Message Agent" optional="false" />
+        <property key="counterName" value="Message delivery throttling user override" optional="false" />
+      </metric>
+    </metricgroup>
+  </extension>
+  <extension point="com.dynatrace.diagnostics.pdk.monitormetricgroup" id="com.dynatrace.diagnostics.plugin.BizTalkPerfMon.metricgroup3" name="BizTalk Message Publishing Counters">
+    <metricgroup monitorid="com.dynatrace.diagnostics.plugin.BizTalkPerfMon.monitor">
+      <metric defaultrate="purepath" name="Message publishing incoming rate" unit="number" description="The number of message publish requests issued by the service class per second.">
+        <property key="objectName" value="BizTalk:Message Agent" optional="false" />
+        <property key="counterName" value="Message publishing incoming rate" optional="false" />
+      </metric>
+      <metric defaultrate="purepath" name="Message publishing outgoing rate" unit="number" description="The number of messages actually published by the service class per second.">
+        <property key="objectName" value="BizTalk:Message Agent" optional="false" />
+        <property key="counterName" value="Message publishing outgoing rate" optional="false" />
+      </metric>
+      <metric defaultrate="purepath" name="Message publishing delay (ms)" unit="ms" description="The delay injected in each qualifying batch for throttling the publishing of messages.">
+        <property key="objectName" value="BizTalk:Message Agent" optional="false" />
+        <property key="counterName" value="Message publishing delay (ms)" optional="false" />
+      </metric>
+      <metric defaultrate="purepath" name="Message publishing throttling state" unit="number" description="A flag indicating whether the system is throttling message publishing (affecting XLANG message processing and inbound transports).&#xD;&#xA;&#xD;&#xA;    * 0: Not throttling&#xD;&#xA;    * 2: Throttling due to imbalanced message publishing rate (input rate exceeds output rate)&#xD;&#xA;    * 4: Throttling due to process memory pressure&#xD;&#xA;    * 5: Throttling due to system memory pressure&#xD;&#xA;    * 6: Throttling due to database growth&#xD;&#xA;    * 8: Throttling due to high session count&#xD;&#xA;    * 9: Throttling due to high thread count&#xD;&#xA;    * 11: Throttling due to user override on publishing&#xD;&#xA;">
+        <property key="objectName" value="BizTalk:Message Agent" optional="false" />
+        <property key="counterName" value="Message publishing throttling state" optional="false" />
+      </metric>
+      <metric defaultrate="purepath" name="Message publishing throttling state duration" unit="s" description="Seconds spent in the current state (throttling or not throttling) of message publish throttling.">
+        <property key="objectName" value="BizTalk:Message Agent" optional="false" />
+        <property key="counterName" value="Message publishing throttling state duration" optional="false" />
+      </metric>
+      <metric defaultrate="purepath" name="Message publishing throttling user override" unit="number" description="This counter reflects the user override that is monitored by the engine and interpreted as follows:&#xD;&#xA;&#xD;&#xA;    * 0: No override&#xD;&#xA;    * 1: Always throttle message publishing&#xD;&#xA;    * 2: Do not throttle message publishing&#xD;&#xA;">
+        <property key="objectName" value="BizTalk:Message Agent" optional="false" />
+        <property key="counterName" value="Message publishing throttling user override" optional="false" />
+      </metric>
+    </metricgroup>
+  </extension>
+  <extension point="com.dynatrace.diagnostics.pdk.monitormetricgroup" id="com.dynatrace.diagnostics.plugin.BizTalkPerfMon.metricgroup4" name="BizTalk FILE Adapter">
+    <metricgroup monitorid="com.dynatrace.diagnostics.plugin.BizTalkPerfMon.monitor">
+      <metric defaultrate="purepath" name="FILE Receiver Messages received/sec" unit="number" description="Number of messages received by adapter per second.">
+        <property key="objectName" value="BizTalk:FILE Receive Adapter" optional="false" />
+        <property key="counterName" value="Messages received/Sec" optional="false" />
+      </metric>
+      <metric defaultrate="purepath" name="FILE Receiver Bytes received/sec" unit="number" description="Number of bytes received by adapter per second.">
+        <property key="objectName" value="BizTalk:FILE Receive Adapter" optional="false" />
+        <property key="counterName" value="Bytes received/Sec" optional="false" />
+      </metric>
+      <metric defaultrate="purepath" name="FILE Receiver Lock failures/sec" unit="number" description="Number of times file receive adapter failed to lock the file per second.">
+        <property key="objectName" value="BizTalk:FILE Receive Adapter" optional="false" />
+        <property key="counterName" value="Lock failures/sec" optional="false" />
+      </metric>
+      <metric defaultrate="purepath" name="FILE Sender Messages sent/sec" unit="number" description="Number of messages sent by adapter per second.">
+        <property key="objectName" value="BizTalk:FILE Send Adapter" optional="false" />
+        <property key="counterName" value="Messages sent/Sec" optional="false" />
+      </metric>
+      <metric defaultrate="purepath" name="FILE Sender Bytes sent/sec" unit="number" description="Number of bytes sent by adapter per second.">
+        <property key="objectName" value="BizTalk:FILE Send Adapter" optional="false" />
+        <property key="counterName" value="Bytes sent/Sec" optional="false" />
+      </metric>
+    </metricgroup>
+  </extension>
+  <extension point="com.dynatrace.diagnostics.pdk.monitormetricgroup" id="com.dynatrace.diagnostics.plugin.BizTalkPerfMon.metricgroup5" name="BizTalk SOAP Adapter">
+    <metricgroup monitorid="com.dynatrace.diagnostics.plugin.BizTalkPerfMon.monitor">
+      <metric defaultrate="purepath" name="SOAP Receiver Messages received/sec" unit="number" description="Number of messages received by adapter per second.">
+        <property key="objectName" value="BizTalk:SOAP Receive Adapter" optional="false" />
+        <property key="counterName" value="Messages received/Sec" optional="false" />
+      </metric>
+      <metric defaultrate="purepath" name="SOAP Sender Messages sent/sec" unit="number" description="Number of messages sent by adapter per second.">
+        <property key="objectName" value="BizTalk:SOAP Send Adapter" optional="false" />
+        <property key="counterName" value="Messages sent/Sec" optional="false" />
+      </metric>
+    </metricgroup>
+  </extension>
+  <extension point="com.dynatrace.diagnostics.pdk.monitormetricgroup" id="com.dynatrace.diagnostics.plugin.BizTalkPerfMon.metricgroup6" name="BizTalk SQL Adapter">
+    <metricgroup monitorid="com.dynatrace.diagnostics.plugin.BizTalkPerfMon.monitor">
+      <metric defaultrate="purepath" name="SQL Receiver Messages received/sec" unit="number" description="Number of messages received by adapter per second.">
+        <property key="objectName" value="BizTalk:SQL Receive Adapter" optional="false" />
+        <property key="counterName" value="Messages received/Sec" optional="false" />
+      </metric>
+      <metric defaultrate="purepath" name="SQL Sender Message sent/sec" unit="number" description="Number of messages sent by adapter per second.">
+        <property key="objectName" value="BizTalk:SQL Send Adapter" optional="false" />
+        <property key="counterName" value="Messages sent/Sec" optional="false" />
+      </metric>
+    </metricgroup>
+  </extension>
+  <extension point="com.dynatrace.diagnostics.pdk.monitormetricgroup" id="com.dynatrace.diagnostics.plugin.BizTalkPerfMon.metricgroup7" name="BizTalk HTTP Send Adapter">
+    <metricgroup monitorid="com.dynatrace.diagnostics.plugin.BizTalkPerfMon.monitor">
+      <metric defaultrate="purepath" name="HTTP Sender Messages received/sec" unit="number" description="Number of messages received by adapter per second.">
+        <property key="objectName" value="BizTalk:HTTP Send Adapter" optional="false" />
+        <property key="counterName" value="Messages received/Sec" optional="false" />
+      </metric>
+      <metric defaultrate="purepath" name="HTTP Sender Messages sent/sec" unit="number" description="Number of messages sent by adapter per second.">
+        <property key="objectName" value="BizTalk:HTTP Send Adapter" optional="false" />
+        <property key="counterName" value="Messages sent/Sec" optional="false" />
+      </metric>
+    </metricgroup>
+  </extension>
+  <extension point="com.dynatrace.diagnostics.pdk.monitormetricgroup" id="com.dynatrace.diagnostics.plugin.BizTalkPerfMon.metricgroup8" name="BizTalk HTTP Receive Adapter">
+    <metricgroup monitorid="com.dynatrace.diagnostics.plugin.BizTalkPerfMon.monitor">
+      <metric defaultrate="purepath" name="HTTP Receiver Messages received/sec" unit="number" description="Number of messages received by adapter per second.">
+        <property key="objectName" value="BizTalk:HTTP Receive Adapter" optional="false" />
+        <property key="counterName" value="Messages received/Sec" optional="false" />
+      </metric>
+      <metric defaultrate="purepath" name="HTTP Receiver Messages sent/sec" unit="number" description="Number of messages sent by adapter per second.">
+        <property key="objectName" value="BizTalk:HTTP Receive Adapter" optional="false" />
+        <property key="counterName" value="Messages sent/Sec" optional="false" />
+      </metric>
+    </metricgroup>
+  </extension>
+</plugin>
+
